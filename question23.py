@@ -8,11 +8,9 @@ if __name__ == "__main__":
     rhos = np.linspace(0.02,1,50)
     mu = 1
     T = 1000
-    num_runs=np.linspace(2,100,50)
+    num_runs=np.linspace(2,100,50).astype(int)
 
     results_FIFO, results_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
-    results_FIFO, results_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, load_file=True)
-
     plot_rho_against_stat(results_FIFO, results_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MMN')
 
     X,Y = np.meshgrid(num_runs, rhos)

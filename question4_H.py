@@ -1,5 +1,4 @@
 import numpy as np 
-
 from get_results import seed_all, run_multiple_simulations, plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
 
 if __name__ == "__main__": 
@@ -9,15 +8,14 @@ if __name__ == "__main__":
     rhos = np.linspace(0.02,1,50)
     mu = None
     T = 1000
-    num_runs=np.linspace(2,100,50)
+    num_runs=np.linspace(2,100,50).astype(int)
    
-    hyperexp_service_time_params={
+    params={
         'mus': np.array([0.25, 1.5]),
         'probs': np.array([0.4, 0.6])
     }
 
-    results_hyperexp_FIFO, results_hyperexp_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=np.array(num_servers_arr), T=T, hyperexp_service_time_params=hyperexp_service_time_params, save_file=True)
-    results_hyperexp_FIFO, results_hyperexp_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=np.array(num_servers_arr), T=T, hyperexp_service_time_params=hyperexp_service_time_params, load_file=True)
+    results_hyperexp_FIFO, results_hyperexp_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, hyperexp_service_time_params=params, save_file=True)
 
     plot_rho_against_stat(results_hyperexp_FIFO, results_hyperexp_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MHN')
 

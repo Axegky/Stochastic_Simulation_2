@@ -1,5 +1,4 @@
 import numpy as np 
-
 from get_results import seed_all, run_multiple_simulations, plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
 
 if __name__ == "__main__": 
@@ -9,11 +8,10 @@ if __name__ == "__main__":
     rhos = np.linspace(0.02,1,50)
     mu = None
     T = 1000
-    num_runs=np.linspace(2,100,50)
+    num_runs=np.linspace(2,100,50).astype(int)
     service_time = 1
 
     results_MDN_FIFO, results_MDN_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, deterministic_service_time=service_time, save_file=True)
-    results_MDN_FIFO, results_MDN_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, deterministic_service_time=service_time, load_file=True)
 
     plot_rho_against_stat(results_MDN_FIFO, results_MDN_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MDN')
 

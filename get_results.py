@@ -170,7 +170,6 @@ def run_multiple_simulations(
                 results_FIFO = process_results(results_FIFO, sim_res_FIFO, rho_idx, num_mc, num_servers_arr, num_mc_idx)
                 results_SJF = process_results(results_SJF, sim_res_SJF, rho_idx, num_mc, num_servers_arr,num_mc_idx)
 
-    
     if save_file:
         if deterministic_service_time:
             with open(f'data/{file_prefix}FIFO_D.pkl', 'wb') as f:
