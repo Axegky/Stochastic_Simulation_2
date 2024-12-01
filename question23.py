@@ -5,11 +5,10 @@ if __name__ == "__main__":
     seed_all()
 
     num_servers_arr = np.array([1,2,4])
-    # rhos=np.linspace(0.01,1,3)
     rhos=np.array([0.1,0.2])
     mu = 1
-    T=500
-    num_runs=np.array([2,3])
+    T=100
+    num_runs=np.array([1,2])
 
     results_FIFO, results_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
     results_FIFO, results_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, load_file=True)
