@@ -3,10 +3,10 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.11.4  # Specify the desired Python version
+  - python=3.11.4 
   - simpy
   - numpy
-  - matplotlib
+  - matplotlib=3.7.3
   - seaborn
   - scipy
   - ipykernel
