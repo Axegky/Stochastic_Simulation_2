@@ -1,0 +1,12 @@
+name: stoch_sim_2
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11.4  # Specify the desired Python version
+  - simpy
+  - numpy
+  - matplotlib
+  - seaborn
+  - scipy
+  - ipykernel
