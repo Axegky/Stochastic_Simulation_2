@@ -272,30 +272,28 @@ def Welch_test(results, rhos, num_runs, num_diff_servers):
 
     return pvalues
 
-def plot_pvalues_heatmap(X, Y, pvalues, file_name=None):
-    num_plots = len(pvalues)
-    fig, axs = plt.subplots(1, num_plots, figsize=(16, 5), dpi=300, sharex=True, sharey=True)    
+def plot_pvalues_heatmap(X, Y, pvalues, num_servers_array, file_name=None):
+    fig, axs = plt.subplots(1, len(pvalues), figsize=(11, 5), dpi=300, sharex=True, sharey=True)    
     axs_flat = axs.flatten()
-    titles = ['n = 1, 2', 'n = 1, 4']
+    titles = [fr'$\mathbb{{E}}[W(1)]$ and $\mathbb{{E}}[W({n})]$' for n in num_servers_array[1:]]
+    
     cmap = plt.get_cmap('plasma_r') 
     cmap.set_under('black') 
-
-    cbarticks=np.arange(0.0,1.0,0.1)
-
+    
     for ax, pvalue, title in zip(axs, pvalues, titles):
-        ax.set_facecolor('darkgrey')
-        heatmap = ax.contourf(X, Y, pvalue, cbarticks, cmap=cmap, vmin=0.05, vmax=1, levels=20)
-        ax.set_xlabel('Number of runs', fontsize=14)
+        heatmap = ax.contourf(X, Y, pvalue, cmap=cmap,  vmin=0.05, levels=20)  
+        ax.set_ylabel('Number of Simulations', fontsize=14)
         ax.set_title(title, fontsize=16)
         ax.grid()
     
     cbar = fig.colorbar(heatmap, ax=axs, orientation='vertical', fraction=0.02, pad=0.04)
-    cbar.set_label('p-value')
+    cbar.set_label('p-value', labelpad=10)  
     
-    axs_flat[0].set_ylabel(r'$\rho$', fontsize=14)
+    axs_flat[0].set_xlabel(r'$\rho$', fontsize=14)
     plt.tight_layout() 
+    plt.subplots_adjust(wspace=0.07, hspace=0.07, right=0.86)
 
     if file_name:
         plt.savefig(f'figures/{file_name}.png')  
-    else:
-        plt.show()  
+
+    plt.show()  

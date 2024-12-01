@@ -6,12 +6,11 @@ if __name__ == "__main__":
     seed_all()
     
     num_servers_arr = np.array([1,2,4])
-    # rhos=np.linspace(0.01,1,3)
-    rhos=np.array([0.1,0.9])
+    rhos = np.linspace(0.02,1,50)
     mu = None
-    T=500
-    num_runs=np.array([5,10])
-    # Need to be changed!!!
+    T = 1000
+    num_runs=np.linspace(2,100,50)
+   
     hyperexp_service_time_params={
         'mus': np.array([0.25, 1.5]),
         'probs': np.array([0.4, 0.6])
@@ -24,4 +23,4 @@ if __name__ == "__main__":
 
     X,Y = np.meshgrid(num_runs, rhos)
     p_value_hyperexp_FIFO = Welch_test(results_hyperexp_FIFO, rhos, num_runs, len(num_servers_arr))
-    plot_pvalues_heatmap(X, Y, p_value_hyperexp_FIFO, file_name='pvalues_FIFO_MHN')
+    plot_pvalues_heatmap(X, Y, p_value_hyperexp_FIFO, num_servers_arr, file_name='pvalues_FIFO_MHN')
