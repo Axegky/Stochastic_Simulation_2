@@ -1,5 +1,6 @@
 import numpy as np 
-from get_results import seed_all, run_multiple_simulations, plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
+from utils.get_results import seed_all, run_multiple_simulations
+from utils.plot import plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
 
 if __name__ == "__main__": 
     seed_all()
@@ -8,15 +9,15 @@ if __name__ == "__main__":
     rhos = np.linspace(0.02,1,50)
     mu = None
     T = 500
-    num_runs=np.linspace(2,100,50).astype(int)
+    num_runs_arr=np.linspace(2,100,50).astype(int)
     service_time = 1
-    results_MDN_FIFO, results_MDN_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, deterministic_service_time=service_time, save_file=True)
+    results_MDN_FIFO, results_MDN_SJF = run_multiple_simulations(num_runs_arr=num_runs_arr, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, deterministic_service_time=service_time, save_file=True)
 
     plot_rho_against_stat(results_MDN_FIFO, results_MDN_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MDN')
 
-    X,Y = np.meshgrid(num_runs, rhos)
-    p_value_MDN_FIFO = Welch_test(results_MDN_FIFO, rhos, num_runs, len(num_servers_arr))
+    X,Y = np.meshgrid(num_runs_arr, rhos)
+    p_value_MDN_FIFO = Welch_test(results_MDN_FIFO, rhos, num_runs_arr, len(num_servers_arr))
     plot_pvalues_heatmap(X, Y, p_value_MDN_FIFO, num_servers_arr, file_name='pvalues_FIFO_MDN')
-    p_value_MDN_SJF = Welch_test(results_MDN_SJF, rhos, num_runs, len(num_servers_arr))
+    p_value_MDN_SJF = Welch_test(results_MDN_SJF, rhos, num_runs_arr, len(num_servers_arr))
     plot_pvalues_heatmap(X, Y, p_value_MDN_SJF, num_servers_arr, file_name='pvalues_SJF_MDN')
 

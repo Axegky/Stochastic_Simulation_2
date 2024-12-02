@@ -80,9 +80,7 @@ class MMN:
 
         # Statistics
         self.waiting_times_FIFO = [[] for _ in range(self.num_diff_N)]
-        self.system_times_FIFO = [[] for _ in range(self.num_diff_N)]
         self.waiting_times_SJF = [[] for _ in range(self.num_diff_N)]
-        self.system_times_SJF = [[] for _ in range(self.num_diff_N)]
 
         # Get initial samples
         self.job_arrival_times_initial = [0]*self.num_diff_N
@@ -175,8 +173,6 @@ class MMN:
             self.waiting_times_FIFO[Ns_idx].append(self.env_FIFO.now - arrival_time)
 
             yield self.env_FIFO.timeout(service_duration)
-            
-            self.system_times_FIFO[Ns_idx].append(self.env_FIFO.now - arrival_time)
     
     def __job_process_SJF(self, service_duration, Ns_idx, arrival_time):
         """Process a single job (SJF)."""
@@ -186,8 +182,6 @@ class MMN:
             self.waiting_times_SJF[Ns_idx].append(self.env_SJF.now - arrival_time)
 
             yield self.env_SJF.timeout(service_duration)
-            
-            self.system_times_SJF[Ns_idx].append(self.env_SJF.now - arrival_time)
         
     def run_simulation(self):
         """Run the simulation."""
@@ -197,10 +191,8 @@ class MMN:
             self.env_FIFO.run(until=self.T*(Ns_idx+1))
         
         result_FIFO = {
-            'avg_waiting_times': [np.mean(wt) for wt in self.waiting_times_FIFO],
-            'avg_system_times': [np.mean(st) for st in self.system_times_FIFO],
-            'waiting_times': self.waiting_times_FIFO,
-            'system_times': self.system_times_FIFO
+            'avg_waiting_times': np.array([np.mean(wt) for wt in self.waiting_times_FIFO]),
+            'waiting_times': self.waiting_times_FIFO
         }
             
         for Ns_idx in range(self.num_diff_N):
@@ -208,10 +200,8 @@ class MMN:
             self.env_SJF.run(until=self.T*(Ns_idx+1))
 
         result_SJF = {
-            'avg_waiting_times': [np.mean(wt) for wt in self.waiting_times_SJF],
-            'avg_system_times': [np.mean(st) for st in self.system_times_SJF],
-            'waiting_times': self.waiting_times_SJF,
-            'system_times': self.system_times_SJF
+            'avg_waiting_times': np.array([np.mean(wt) for wt in self.waiting_times_SJF]),
+            'waiting_times': self.waiting_times_SJF
         }
 
         return result_FIFO, result_SJF

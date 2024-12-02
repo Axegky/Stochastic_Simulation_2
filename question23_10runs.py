@@ -1,5 +1,5 @@
 import numpy as np 
-from get_results import seed_all, run_multiple_simulations, plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
+from utils.get_results import seed_all, run_multiple_simulations, plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
 
 if __name__ == "__main__": 
     seed_all()
@@ -8,11 +8,12 @@ if __name__ == "__main__":
     rhos = np.linspace(0.02,1,2)
     mu = 1
     T = 1000
-    num_runs = np.zeros((5,10))
+    num_runs = np.zeros((5,2))
     for i in range(5): 
-        num_runs[i,:]=np.linspace(20*i+2,20*(i+1),10).astype(int)
+        #num_runs[i,:]=np.linspace(20*i+2,20*(i+1),10).astype(int)
+        num_runs[i,:]=np.array([2,3])
 
-    results_FIFO, results_SJF = run_multiple_simulations(num_runs=np.array([2,3]), rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
+    results_FIFO, results_SJF = run_multiple_simulations(num_runs=num_runs[0], rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
     results_FIFO_1, results_SJF_1 = run_multiple_simulations(num_runs=num_runs[1], rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
     results_FIFO_2, results_SJF_2 = run_multiple_simulations(num_runs=num_runs[2], rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)
     results_FIFO_3, results_SJF_3 = run_multiple_simulations(num_runs=num_runs[3], rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)

@@ -1,3 +1,4 @@
-.ipynb_checkpoints
+.ipynb_checkpoints/s
 jobs/
 outputs/
+__pycache__/
