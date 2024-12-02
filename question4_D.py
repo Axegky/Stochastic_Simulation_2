@@ -7,10 +7,9 @@ if __name__ == "__main__":
     num_servers_arr = np.array([1,2,4])
     rhos = np.linspace(0.02,1,50)
     mu = None
-    T = 1000
+    T = 500
     num_runs=np.linspace(2,100,50).astype(int)
     service_time = 1
-
     results_MDN_FIFO, results_MDN_SJF = run_multiple_simulations(num_runs=num_runs, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, deterministic_service_time=service_time, save_file=True)
 
     plot_rho_against_stat(results_MDN_FIFO, results_MDN_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MDN')

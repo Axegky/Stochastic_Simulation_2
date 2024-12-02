@@ -1,6 +1,6 @@
 from MMN import MMN
 import numpy as np
-from scipy.stats import expon, t
+from scipy.stats import t
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 import random
@@ -24,13 +24,13 @@ def convert_to_float32(results):
     
     return results_32
 
-def run_sim(rho_num_mc, mu, num_servers_arr, T, random_state_offset, deterministic_service_time, hyperexp_service_time_params):
+def run_sim(rho_num_mc_idx, mu, num_servers_arr, T, random_state_offset, deterministic_service_time, hyperexp_service_time_params):
     return MMN(
-        rho=rho_num_mc[0],
+        rho=rho_num_mc_idx[0],
         mu=mu,
         num_servers_arr=num_servers_arr,
         T=T,
-        random_state=random_state_offset + rho_num_mc[1],
+        random_state=random_state_offset + rho_num_mc_idx[1],
         deterministic_service_time=deterministic_service_time,
         hyperexp_service_time_params=hyperexp_service_time_params
     ).run_simulation()
@@ -105,16 +105,21 @@ def run_multiple_simulations(
 
         return results_FIFO, results_SJF
 
-    rho_MC_idxs = [(rho, num_mc) 
-                   for num_mc in num_runs for rho in rhos]
+    rho_mc_idxs = [(rho, num_mc_idx) 
+                   for num_mc_idx in range(max_num_run) for rho in rhos]
 
     results_diff_rhos_runs = None
     run_sim_partial = partial(run_sim, mu=mu, num_servers_arr=num_servers_arr, T=T, random_state_offset=random_state_offset, deterministic_service_time=deterministic_service_time, hyperexp_service_time_params=hyperexp_service_time_params)
 
+    print('Starting Simulation...')
+
     # We use random_state to seed parallel programming
-    with ProcessPoolExecutor() as ex:
-        results_diff_rhos_runs = list(ex.map(run_sim_partial, rho_MC_idxs))
+    with ProcessPoolExecutor(max_workers=64) as ex:
+        results_diff_rhos_runs = list(ex.map(run_sim_partial, rho_mc_idxs))
+
+    print('Finished Simulation!')
     
+    print('Processing Results...')
     def process_results(results, sim_res, rho_idx, num_mc, num_servers_arr, num_mc_idx):
         """Helper function to process results for FIFO or SJF."""
         for key in sim_res:
@@ -167,6 +172,8 @@ def run_multiple_simulations(
                 results_FIFO = process_results(results_FIFO, sim_res_FIFO, rho_idx, num_mc, num_servers_arr, num_mc_idx)
                 results_SJF = process_results(results_SJF, sim_res_SJF, rho_idx, num_mc, num_servers_arr,num_mc_idx)
     
+    print('Finished Processing Results!')
+
     if save_file:
         if deterministic_service_time:
             with open(f'data/{file_prefix}FIFO_D.pkl', 'wb') as f:

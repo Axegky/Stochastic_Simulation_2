@@ -7,7 +7,7 @@ if __name__ == "__main__":
     num_servers_arr = np.array([1,2,4])
     rhos = np.linspace(0.02,1,50)
     mu = None
-    T = 1000
+    T = 500
     num_runs=np.linspace(2,100,50).astype(int)
    
     params={
