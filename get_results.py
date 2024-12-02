@@ -2,12 +2,13 @@ from MMN import MMN
 import numpy as np
 from scipy.stats import expon, t
 import matplotlib.pyplot as plt
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import random
 import seaborn as sns
 import pickle 
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+from functools import partial
 
 def seed_all(seed=42):
     random.seed(seed)
@@ -23,6 +24,17 @@ def convert_to_float32(results):
     
     return results_32
 
+def run_sim(rho_num_mc, mu, num_servers_arr, T, random_state_offset, deterministic_service_time, hyperexp_service_time_params):
+    return MMN(
+        rho=rho_num_mc[0],
+        mu=mu,
+        num_servers_arr=num_servers_arr,
+        T=T,
+        random_state=random_state_offset + rho_num_mc[1],
+        deterministic_service_time=deterministic_service_time,
+        hyperexp_service_time_params=hyperexp_service_time_params
+    ).run_simulation()
+    
 def run_multiple_simulations(
         num_runs: np.array, 
         rhos: np.array, 
@@ -93,30 +105,15 @@ def run_multiple_simulations(
 
         return results_FIFO, results_SJF
 
-    rho_MC_idxs = [(rho_idx, i) for i in range(max_num_run) for rho_idx in range(num_rhos)]
-
-    MMNs = [
-        MMN(
-            rho=rhos[rho_MC_idx[0]],
-            mu=mu,
-            num_servers_arr=np.array(num_servers_arr),
-            T=T,
-            random_state=random_state_offset + rho_MC_idx[1],
-            deterministic_service_time=deterministic_service_time,
-            hyperexp_service_time_params=hyperexp_service_time_params
-        )
-        for rho_MC_idx in rho_MC_idxs
-    ]
-
-    def run_simulation(idxs):
-        rho_idx, mc_idx = idxs
-        return MMNs[rho_idx * max_num_run + mc_idx].run_simulation()
+    rho_MC_idxs = [(rho, num_mc) 
+                   for num_mc in num_runs for rho in rhos]
 
     results_diff_rhos_runs = None
+    run_sim_partial = partial(run_sim, mu=mu, num_servers_arr=num_servers_arr, T=T, random_state_offset=random_state_offset, deterministic_service_time=deterministic_service_time, hyperexp_service_time_params=hyperexp_service_time_params)
 
     # We use random_state to seed parallel programming
-    with ThreadPoolExecutor() as ex:
-        results_diff_rhos_runs = list(ex.map(run_simulation, rho_MC_idxs))
+    with ProcessPoolExecutor() as ex:
+        results_diff_rhos_runs = list(ex.map(run_sim_partial, rho_MC_idxs))
     
     def process_results(results, sim_res, rho_idx, num_mc, num_servers_arr, num_mc_idx):
         """Helper function to process results for FIFO or SJF."""
@@ -169,7 +166,7 @@ def run_multiple_simulations(
             for sim_res_FIFO, sim_res_SJF in results_diff_runs:
                 results_FIFO = process_results(results_FIFO, sim_res_FIFO, rho_idx, num_mc, num_servers_arr, num_mc_idx)
                 results_SJF = process_results(results_SJF, sim_res_SJF, rho_idx, num_mc, num_servers_arr,num_mc_idx)
-
+    
     if save_file:
         if deterministic_service_time:
             with open(f'data/{file_prefix}FIFO_D.pkl', 'wb') as f:
