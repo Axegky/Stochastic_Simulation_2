@@ -87,13 +87,13 @@ def run_multiple_simulations(
     file_prefix = f'rho_{smallest_rho}_to_{largest_rho}_with_num_{num_rhos}_mu_{mu}_T_{T}_num_runs_{smallest_num_run}_to_{max_num_run}_with_num_{num_diff_run}_'
 
     results_FIFO = {
-        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float16),
+        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'std_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'waiting_times': [[[] for _ in range(num_diff_N)] for _ in range(num_rhos)]
     }
 
     results_SJF = {
-        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float16),
+        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'std_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'waiting_times': [[[] for _ in range(num_diff_N)] for _ in range(num_rhos)]
     }
