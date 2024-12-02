@@ -61,7 +61,7 @@ class MMN:
     
         self.num_servers_arr = num_servers_arr
         self.T = T
-        self.batch_sample_size = np.ceil(self.lamb*self.T*5).astype(int)
+        self.batch_sample_size = np.ceil(self.lamb*self.T*6).astype(int)
         self.num_diff_N = len(num_servers_arr)
         self.SJF = SJF
         self.deterministic_service_time = deterministic_service_time
@@ -69,8 +69,8 @@ class MMN:
 
         # Reproducibility params
         self.random_state_lamb = random_state
-        self.random_state_mu = random_state + 1
-        self.random_state_jump = 10^4
+        self.random_state_jump = 10**3
+        self.random_state_mu = int(random_state + self.random_state_jump/2)
 
         # SimPy environment and resources
         self.env_FIFO = simpy.Environment()

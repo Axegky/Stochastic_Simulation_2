@@ -43,8 +43,6 @@ def process_results(results, sim_res_mc, num_mc_idx, rho_idx, num_diff_servers):
                     wt.extend(sim_res[key][N_Idx])
                     results[f'std_{key}'][rho_idx, num_mc_idx, N_Idx] = np.std(wt, ddof=1)
 
-    return results
-
 def postprocess_results(results, num_runs_arr):
     for key in results:
         if key.startswith('avg_'):
@@ -87,13 +85,13 @@ def run_multiple_simulations(
     file_prefix = f'rho_{smallest_rho}_to_{largest_rho}_with_num_{num_rhos}_mu_{mu}_T_{T}_num_runs_{smallest_num_run}_to_{max_num_run}_with_num_{num_diff_run}_'
 
     results_FIFO = {
-        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float16),
+        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'std_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'waiting_times': [[[] for _ in range(num_diff_N)] for _ in range(num_rhos)]
     }
 
     results_SJF = {
-        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float16),
+        'avg_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'std_waiting_times': np.zeros((num_rhos, num_diff_run, num_diff_N), dtype=np.float32),
         'waiting_times': [[[] for _ in range(num_diff_N)] for _ in range(num_rhos)]
     }
@@ -122,26 +120,42 @@ def run_multiple_simulations(
 
     run_sim_partial = partial(run_sim, mu=mu, num_servers_arr=num_servers_arr, T=T, random_state_offset=random_state_offset, deterministic_service_time=deterministic_service_time, hyperexp_service_time_params=hyperexp_service_time_params)
     
-    results_diff_rhos_runs = [0]*num_diff_run*num_rhos
-    num_parallel_runs = int(max_num_run/num_runs_parallel)
-    all_results = []
+    # results_diff_rhos_runs = [0]*num_diff_run*num_rhos
+ 
+    # if max_num_run % num_runs_parallel != 0:
+    #     raise ValueError(f"Maximum number of MC {max_num_run} must be divisible by number of parallel simulations {num_runs_parallel}!")
+    
+    # num_parallel = max_num_run//num_runs_parallel
 
     print(f'Starting Simulation with {max_num_run} runs on {num_rhos} different rhos...')
 
-    for i in range(num_parallel_runs):
-        rho_mc_idxs = [(rho, num_mc_idx) 
-            for num_mc_idx in range(i*num_runs_parallel, (i+1)*num_runs_parallel) for rho in rhos]
-    
-        # We use random_state to seed parallel programming
-        with ProcessPoolExecutor() as ex:
-            all_results.append(list(ex.map(run_sim_partial, rho_mc_idxs)))
-        
-        print(f'Finished {(i+1)*num_runs_parallel} Simulations!')
+    results_diff_rhos_runs = None
+    rho_mc_idxs = [(rho, mc_idx) \
+            for rho in rhos 
+            for mc_idx in range(max_num_run)]
 
-        for rho_idx in range(num_rhos):
-            start_idx = rho_idx*max_num_run+i*num_runs_parallel
-            end_idx = rho_idx*max_num_run+(i+1)*num_runs_parallel
-            results_diff_rhos_runs[start_idx:end_idx] = all_results[i][rho_idx*num_runs_parallel:(rho_idx+1)*num_runs_parallel]
+    # We use random_state to seed parallel programming
+    with ProcessPoolExecutor() as ex:
+        results_diff_rhos_runs = list(ex.map(run_sim_partial, rho_mc_idxs))
+
+    # for i in range(num_parallel):
+    #     parallel_result = None
+    #     rho_mc_idxs = [(rho, mc_idx) \
+    #             for rho in rhos 
+    #             for mc_idx in range(i*num_runs_parallel, (i+1)*num_runs_parallel)]
+    #     print(rho_mc_idxs[:(i+1)*num_runs_parallel])
+    
+    #     # We use random_state to seed parallel programming
+    #     with ProcessPoolExecutor() as ex:
+    #         parallel_result = list(ex.map(run_sim_partial, rho_mc_idxs))
+        
+    #     print(f'Finished {(i+1)*num_runs_parallel} Simulations!')
+
+    #     for rho_idx in range(num_rhos):
+    #         start_idx = rho_idx*max_num_run+i*num_runs_parallel
+    #         end_idx = rho_idx*max_num_run+(i+1)*num_runs_parallel
+
+    #         results_diff_rhos_runs[start_idx:end_idx] = parallel_result[rho_idx*num_runs_parallel:(rho_idx+1)*num_runs_parallel]
         
     print('Finished Simulation!')
     
@@ -165,12 +179,14 @@ def run_multiple_simulations(
             process_results_partial(results_FIFO, sim_res_MC_FIFO, num_mc_idx, rho_idx)
             process_results_partial(results_SJF, sim_res_MC_SJF, num_mc_idx, rho_idx)
 
+    del results_FIFO['waiting_times']
+    del results_SJF['waiting_times']
     print('Finished Processing Results!')
     print('Postprocessing Results...')
 
     postprocess_results_partial(results_FIFO)
     postprocess_results_partial(results_SJF)
-
+    
     print('Finished Postprocessing Results!')
 
     if save_file:

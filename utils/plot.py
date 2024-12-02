@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from scipy.stats import t
+from matplotlib.ticker import MaxNLocator
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
@@ -53,18 +54,17 @@ def plot_rho_against_stat(
         plt.show()  
 
 def Welch_test(results, rhos, num_runs_arr, num_diff_servers): 
-    pvalues = np.zeros((num_diff_servers-1, len(num_runs_arr), len(rhos)))
-    for num_mc_idx, num_mc in enumerate(num_runs_arr): 
-        for rho_idx, _ in enumerate(rhos):
-            means = results['avg_waiting_times'][rho_idx, num_mc_idx]
-            stds = results['std_waiting_times'][rho_idx, num_mc_idx] 
-            for i in range(num_diff_servers-1):
-                var_sum = stds[0]**2 + stds[i+1]**2
-                t_stat = (means[0]-means[i+1]) / np.sqrt(var_sum / num_mc)
-                dof = (num_mc-1)*(var_sum**2) / (stds[0]**2 + stds[i+1]**2)
-                pvalues[i, num_mc_idx, rho_idx] = 1 - t.cdf(np.abs(t_stat), dof)
+    means = results['avg_waiting_times']
+    stds = results['std_waiting_times']
+    num_mcs = num_runs_arr[np.newaxis, :, np.newaxis]
 
-    return pvalues
+    pvalues = np.zeros((num_diff_servers-1, len(num_runs_arr), len(rhos)))
+    var_sum = stds[:, :, 0:1]**2 + stds[:, :, 1:num_diff_servers]**2
+    t_stats = (means[:, :, 0:1] - means[:, :, 1:num_diff_servers]) / np.sqrt(var_sum / num_mcs)
+    dof = (num_mcs - 1) * (var_sum**2) / (stds[:, :, 0:1]**2 + stds[:, :, 1:num_diff_servers]**2)
+    pvalues = 1 - t.cdf(np.abs(t_stats), dof)
+
+    return pvalues.transpose((2, 1, 0))
 
 def plot_pvalues_heatmap(X, Y, pvalues, num_servers_array, file_name=None):
     fig, axs = plt.subplots(1, len(pvalues), figsize=(11, 5), dpi=300, sharex=True, sharey=True)    
@@ -79,6 +79,7 @@ def plot_pvalues_heatmap(X, Y, pvalues, num_servers_array, file_name=None):
         ax.set_ylabel('Number of Simulations', fontsize=13)
         ax.set_title(title, fontsize=16)
         ax.grid()
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     
     cbar = fig.colorbar(heatmap, ax=axs, orientation='vertical', fraction=0.02, pad=0.04)
     cbar.set_label('p-value', labelpad=10)  
