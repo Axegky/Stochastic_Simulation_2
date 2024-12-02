@@ -9,9 +9,8 @@ if __name__ == "__main__":
     num_servers_arr = np.array([1,2,4])
     rhos = np.linspace(0.01,1,50)
     mu = 1
-    T = 1000
-    num_runs_arr=np.linspace(2,max_num_runs,99).astype(int)
-    # num_runs_arr=np.linspace(2,max_num_runs,2).astype(int)
+    T = 2000
+    num_runs_arr=np.linspace(2,200,100).astype(int)
 
     results_FIFO, results_SJF = run_multiple_simulations(
         num_runs_arr=num_runs_arr, rhos=rhos, mu=mu, num_servers_arr=num_servers_arr, T=T, save_file=True)

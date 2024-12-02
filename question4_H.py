@@ -6,10 +6,10 @@ if __name__ == "__main__":
     seed_all()
     
     num_servers_arr = np.array([1,2,4])
-    rhos = np.linspace(0.02,1,50)
-    mu = None
-    T = 500
-    num_runs_arr=np.linspace(2,100,50).astype(int)
+    rhos = np.linspace(0.01,1,100)
+    mu = 1
+    T = 1000
+    num_runs_arr=np.linspace(2,100,99).astype(int)
    
     params={
         'mus': np.array([0.25, 1.5]),
@@ -20,6 +20,8 @@ if __name__ == "__main__":
 
     plot_rho_against_stat(results_hyperexp_FIFO, results_hyperexp_SJF, num_servers_arr, rhos, num_run_idx=-1, file_name='waiting_time_FIFO_MHN')
 
-    X,Y = np.meshgrid(num_runs_arr, rhos)
+    X,Y = np.meshgrid(rhos, num_runs_arr)
     p_value_hyperexp_FIFO = Welch_test(results_hyperexp_FIFO, rhos, num_runs_arr, len(num_servers_arr))
     plot_pvalues_heatmap(X, Y, p_value_hyperexp_FIFO, num_servers_arr, file_name='pvalues_FIFO_MHN')
+    p_value_hyperexp_SJF = Welch_test(results_hyperexp_SJF, rhos, num_runs_arr, len(num_servers_arr))
+    plot_pvalues_heatmap(X, Y, p_value_hyperexp_SJF, num_servers_arr, file_name='pvalues_SJF_MHN')
