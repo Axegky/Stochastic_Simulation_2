@@ -67,8 +67,7 @@ def run_multiple_simulations(
         save_file=None, 
         load_file=None,
         deterministic_service_time=None,
-        hyperexp_service_time_params=None,
-        num_runs_parallel = 25
+        hyperexp_service_time_params=None
     ):
     """Run multiple simulations and average the results."""
 
@@ -119,13 +118,6 @@ def run_multiple_simulations(
         return results_FIFO, results_SJF
 
     run_sim_partial = partial(run_sim, mu=mu, num_servers_arr=num_servers_arr, T=T, random_state_offset=random_state_offset, deterministic_service_time=deterministic_service_time, hyperexp_service_time_params=hyperexp_service_time_params)
-    
-    # results_diff_rhos_runs = [0]*num_diff_run*num_rhos
- 
-    # if max_num_run % num_runs_parallel != 0:
-    #     raise ValueError(f"Maximum number of MC {max_num_run} must be divisible by number of parallel simulations {num_runs_parallel}!")
-    
-    # num_parallel = max_num_run//num_runs_parallel
 
     print(f'Starting Simulation with {max_num_run} runs on {num_rhos} different rhos...')
 
@@ -138,27 +130,7 @@ def run_multiple_simulations(
     with ProcessPoolExecutor() as ex:
         results_diff_rhos_runs = list(ex.map(run_sim_partial, rho_mc_idxs))
 
-    # for i in range(num_parallel):
-    #     parallel_result = None
-    #     rho_mc_idxs = [(rho, mc_idx) \
-    #             for rho in rhos 
-    #             for mc_idx in range(i*num_runs_parallel, (i+1)*num_runs_parallel)]
-    #     print(rho_mc_idxs[:(i+1)*num_runs_parallel])
-    
-    #     # We use random_state to seed parallel programming
-    #     with ProcessPoolExecutor() as ex:
-    #         parallel_result = list(ex.map(run_sim_partial, rho_mc_idxs))
-        
-    #     print(f'Finished {(i+1)*num_runs_parallel} Simulations!')
-
-    #     for rho_idx in range(num_rhos):
-    #         start_idx = rho_idx*max_num_run+i*num_runs_parallel
-    #         end_idx = rho_idx*max_num_run+(i+1)*num_runs_parallel
-
-    #         results_diff_rhos_runs[start_idx:end_idx] = parallel_result[rho_idx*num_runs_parallel:(rho_idx+1)*num_runs_parallel]
-        
     print('Finished Simulation!')
-    
     print('Processing Results...')
 
     process_results_partial = partial(process_results, num_diff_servers=num_diff_N)
@@ -181,6 +153,7 @@ def run_multiple_simulations(
 
     del results_FIFO['waiting_times']
     del results_SJF['waiting_times']
+
     print('Finished Processing Results!')
     print('Postprocessing Results...')
 

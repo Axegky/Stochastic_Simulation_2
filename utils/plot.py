@@ -24,7 +24,7 @@ def sns_lineplot(rhos, results, axs, num_servers_arr, Ns_Idx, service_type='FIFO
     axs.plot(rhos, results['conf_waiting_time_upper'][:, num_run_idx, Ns_Idx], color=color, linestyle='--', linewidth=1, alpha=0.5)
 
     axs.set_xlabel(r'$\rho$', fontsize=14)
-    axs.set_ylabel(f'Mean Waiting Time', fontsize=14) 
+    axs.set_ylabel(f'Mean Waiting Time', fontsize=13) 
 
     axs.legend(title='Number of Servers', fontsize=12)
 
@@ -39,7 +39,7 @@ def plot_rho_against_stat(
     file_name=None
 ):
     num_diff_N = len(num_servers_arr)    
-    _, axs = plt.subplots(1, 2, figsize=(15, 10), dpi=300, sharey=True, sharex=True)
+    _, axs = plt.subplots(1, 2, figsize=(11, 5), dpi=300, sharey=True, sharex=True)
     colors = ['orange', 'green', 'blue']
 
     for j in range(num_diff_N):
@@ -76,7 +76,6 @@ def plot_pvalues_heatmap(X, Y, pvalues, num_servers_array, file_name=None):
     
     for ax, pvalue, title in zip(axs, pvalues, titles):
         heatmap = ax.contourf(X, Y, pvalue, cmap=cmap,  vmin=0.05, levels=20)  
-        ax.set_ylabel('Number of Simulations', fontsize=13)
         ax.set_title(title, fontsize=16)
         ax.grid()
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
@@ -86,6 +85,8 @@ def plot_pvalues_heatmap(X, Y, pvalues, num_servers_array, file_name=None):
     
     axs_flat[0].set_xlabel(r'$\rho$', fontsize=14)
     axs_flat[1].set_xlabel(r'$\rho$', fontsize=14)
+    axs_flat[0].set_ylabel('Number of Simulations', fontsize=13)
+    
     plt.tight_layout() 
     plt.subplots_adjust(wspace=0.1, hspace=0.07, right=0.87)
 

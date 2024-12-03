@@ -5,12 +5,13 @@ from utils.plot import plot_rho_against_stat, Welch_test, plot_pvalues_heatmap
 if __name__ == "__main__": 
     seed_all()
     
+    mu = None
+
     num_servers_arr = np.array([1,2,4])
     rhos = np.linspace(0.01,1,100)
-    mu = 1
-    T = 1000
-    num_runs_arr=np.linspace(2,100,99).astype(int)
-   
+    T = 2000
+    max_num_run = 200
+    num_runs_arr=np.linspace(2,max_num_run,100).astype(int)
     params={
         'mus': np.array([0.25, 1.5]),
         'probs': np.array([0.4, 0.6])
