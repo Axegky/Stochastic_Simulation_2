@@ -55,7 +55,7 @@ class MMN:
             
             self.mus = np.array(hyperexp_service_time_params['mus'])
             self.probs = np.array(hyperexp_service_time_params['probs'])
-            self.lamb = rho * (num_servers_arr * (self.mus * self.probs).sum())
+            self.lamb = rho * num_servers_arr
         else:
             self.lamb = rho * (num_servers_arr * mu)
     

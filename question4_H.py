@@ -13,7 +13,7 @@ if __name__ == "__main__":
     max_num_run = 200
     num_runs_arr=np.linspace(2,max_num_run,100).astype(int)
     params={
-        'mus': np.array([0.25, 1.5]),
+        'mus': np.array([2/3, 1.5]),
         'probs': np.array([0.4, 0.6])
     }
 
